@@ -20,7 +20,7 @@ mt19937 rng(time(0)); //Random number generator of 32 bits. It is better than ra
 // Constants
 
 const int PRECISION=12;
-const int NBPOINTS=50;
+const int NBPOINTS=500;
 
 // Structures for later use
 
@@ -84,6 +84,22 @@ vector<point> genB(int n){
         ld y=random_double();
         points.push_back({x,y});
         cout<<fixed<<setprecision(PRECISION)<<x<<" "<<y<<"\n"; 
+    }
+    return points;
+}
+
+vector<point> genC(int n){
+    // Using reject-accept algorithm in a circle
+    freopen("datasetC.txt","w", stdout);
+    vector<point> points;
+    while(points.size()<n){
+        ld x=random_double();
+        ld y=random_double();
+        double d = hypot(x-0.5, y-0.5);
+        if (d <=1.){
+            points.push_back({x,y});
+            cout<<fixed<<setprecision(PRECISION)<<x<<" "<<y<<"\n"; 
+        }
     }
     return points;
 }
@@ -173,6 +189,8 @@ vector<point> convex_hull_sweeping(vector<point>& points){
     for (int j=1;j<(int)(hull_down.size())-1;j++) hull_up.push_back(hull_down[j]);
     return hull_up;
 }
+
+
 
 int main() {
     auto points=genB(NBPOINTS);

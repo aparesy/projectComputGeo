@@ -15,8 +15,11 @@ def draw_output(f = 'output.txt'):
         plt.plot(x,y, "or")
         print(len(x))
         for i in range(len(x)-1):
-            plt.plot([x[i], x[i+1]], [y[i], y[i+1]], "r")
-        plt.plot([x[-1], x[0]], [y[-1], y[0]], "r")
+            if (x[i]<x[i+1]):
+                plt.plot([x[i], x[i+1]], [y[i], y[i+1]], "r")
+            else:
+                plt.plot([x[i], x[i+1]], [y[i], y[i+1]], "g")
+        plt.plot([x[-1], x[0]], [y[-1], y[0]], "g")
 
 plt.xlabel("x")
 plt.ylabel("y")
