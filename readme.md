@@ -6,4 +6,13 @@ Projet effectué dans le cadre d'un cours donné en deuxième année à l'École
 
 Les différentes commandes d'exécution sont les suivantes :
 
-Pour 
+Pour exécuter plusieurs fois chaque algorithme, obtenir une comparaison des différents temps d'exécution et une visualisation des deux algorithmes sur chaque dataset : `make run`
+
+Pour générer les 4 datasets aléatoires et obtenir une visualisation de chacun d'entre eux : `make datasets`
+
+Pour faire une seule exécution de chaque algorithme sur chacun des quatre datasets et obtenir les temps d'exécution : `make simple`
+
+Pour nettoyer les fichiers : `make clean`
+
+
+
