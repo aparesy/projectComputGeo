@@ -1,7 +1,7 @@
 OBJS = convex_hull.o
 EXECS = convex_hull tmp visu
 RESULTS = *.txt
-FLAGS = -fsanitize=bounds -fsanitize=address -fsanitize=undefined -Wall -O3 -std=c++17 -g
+FLAGS = -fsanitize=bounds -fsanitize=address -fsanitize=undefined -Wall -O3	 -std=c++17 -g
 VISU_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 REBUILDABLES = $(OBJS) $(EXECS) $(RESULTS)
 

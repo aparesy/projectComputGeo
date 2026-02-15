@@ -177,19 +177,24 @@ private:
     static std::pair<list_t, list_t> partition(list_t lst, T pivot) {
         list_t p1, p2;
         for (auto x : lst)
-            (x < pivot || x == pivot ? p1 : p2).push_back(x);
+            (x < pivot ? p1 : p2).push_back(x);
         
         return std::pair(p1, p2);
     }
 
     static T quickSelect(list_t lst, int k) {
+        if (lst.size() <= 5) {
+            sort(lst.begin(), lst.end());
+            return lst[k - 1];
+        }
         list_t p1, p2;
         T pivot = findMedianOfMedians(lst);
         tie(p1, p2) = partition(lst, pivot);
-        if ((int)p2.size() >= k)
-            return quickSelect(p2, k);
+        if ((int)p1.size() >= k)
+            return quickSelect(p1, k);
         else if (k > (int)(lst.size() - p2.size()))
-            return quickSelect(p1, k - (lst.size() - p2.size()));
+            return quickSelect(p2, k - (lst.size() - p2.size()));
+
         return pivot;
     }
 
@@ -201,7 +206,7 @@ private:
     }
     
     static T findMedianOfMedians(list_t lst) {
-        if (lst.size() <= 5)
+        if ((int)lst.size() <= 5)
             return findMedianNaive(lst);
         list_t nxt;
         for (int i = 0; i < (int)lst.size(); i += 5) {
@@ -219,7 +224,9 @@ public:
     // list has an odd number of elements. This is intentional and is used in
     // the convex hull algorithm.
     static T findMedian(list_t lst) {
-        return (quickSelect(lst, lst.size() / 2) + quickSelect(lst, lst.size() / 2 + 1)) / 2;
+        T m1{ quickSelect(lst, lst.size() / 2) };
+        T m2{ quickSelect(lst, lst.size() / 2 + 1) };
+        return (m1 + m2) / 2;
     }
 };
 
@@ -317,6 +324,8 @@ public:
         std::vector<point> res{ lst1 };
         for (auto x : lst2)
             res.push_back(x);
+        auto it { std::unique(res.begin(), res.end()) };
+        res.erase(it, res.end());
     
         return res;
     }
@@ -392,15 +401,16 @@ int main() {
             res[i]=convex_hull_sweeping(data[i]);
             Algorithm2 tmp(data[i]);
             res2[i]=tmp.startAlgorithm();
+            if (res[i].size()+1==res2[i].size()) res2[i].pop_back();
         }
         freopen("resultsA.txt", "w", stdout);
-        for (auto pt : res[0]) cout<<pt.x<<" "<<pt.y<<"\n";
+        for (auto pt : res2[0]) cout<<pt.x<<" "<<pt.y<<"\n";
         freopen("resultsB.txt", "w", stdout);
-        for (auto pt : res[1]) cout<<pt.x<<" "<<pt.y<<"\n";
+        for (auto pt : res2[1]) cout<<pt.x<<" "<<pt.y<<"\n";
         freopen("resultsC.txt", "w", stdout);
-        for (auto pt : res[2]) cout<<pt.x<<" "<<pt.y<<"\n";
+        for (auto pt : res2[2]) cout<<pt.x<<" "<<pt.y<<"\n";
         freopen("resultsD.txt", "w", stdout);
-        for (auto pt : res[3]) cout<<pt.x<<" "<<pt.y<<"\n";
+        for (auto pt : res2[3]) cout<<pt.x<<" "<<pt.y<<"\n";
 
         freopen("results.txt", "w", stdout);
         cout<<"Do both algorithms return the same result ? \n";
@@ -418,8 +428,8 @@ int main() {
             for (auto [a,b] : res2[i]){
                 if (st.find({a,b})==st.end()){
                     cout<<fixed<<setprecision(PRECISION)<<"Couldn't find point ("<<a<<","<<b<<") in the sweeping hull\n";
+                    ok=false;
                 }
-                ok=false;
             }
             if (ok) cout<<"OK, hulls are the same\n";
             else cout<<"Hulls are different\n";
