@@ -186,9 +186,9 @@ private:
         list_t p1, p2;
         T pivot = findMedianOfMedians(lst);
         tie(p1, p2) = partition(lst, pivot);
-        if (p2.size() >= k)
+        if ((int)p2.size() >= k)
             return quickSelect(p2, k);
-        else if (k > lst.size() - p2.size())
+        else if (k > (int)(lst.size() - p2.size()))
             return quickSelect(p1, k - (lst.size() - p2.size()));
         return pivot;
     }
@@ -204,7 +204,7 @@ private:
         if (lst.size() <= 5)
             return findMedianNaive(lst);
         list_t nxt;
-        for (int i = 0; i < lst.size(); i += 5) {
+        for (int i = 0; i < (int)lst.size(); i += 5) {
             list_t cur;
             for (int j = i; j < min(i + 5, static_cast<int>(lst.size())); ++j)
                 cur.push_back(lst[j]);
@@ -243,7 +243,7 @@ public:
         point p1{ mini }, p2{ maxi };
 
         ld lowestY = findIntersectionY(p_m.x, p1, p2);
-        for (int k = 0; k < points.size(); ++k) {
+        for (int k = 0; k < (int)points.size(); ++k) {
             point p = points[k];
             if (p == p1 || p == p2)
                 continue;
@@ -339,19 +339,27 @@ int main() {
         vector<point> res[4];
         forn(i,4){
             forn(j,NB_ITER){
-                data[0]=genA(NBPOINTS);
-                data[1]=genB(NBPOINTS);
-                data[2]=genC(NBPOINTS);
-                data[3]=genD(NBPOINTS);
-
+                switch (i)
+                {
+                case 0:
+                    data[0] = genA(NBPOINTS);
+                    break;
+                case 1:
+                    data[1] = genB(NBPOINTS);
+                    break;
+                case 2:
+                    data[2] = genC(NBPOINTS);
+                    break;
+                case 3:
+                    data[3] = genD(NBPOINTS);
+                    break;
+                }
                 times_sweep[i]-=clock();
                 res[i]=convex_hull_sweeping(data[i]);
                 times_sweep[i]+=clock();
-                freopen("alt.txt", "w", stdout);
-                for(auto g : res[i]) cout<<g.x<<" "<<g.y<<"\n"; 
                 times_dnc[i]-=clock();
                 Algorithm2 tmp(data[i]);
-                //res[i]=tmp.startAlgorithm();
+                res[i]=tmp.startAlgorithm();
                 times_dnc[i]+=clock();
             }
             times_sweep[i]/=((ld)(NB_ITER));

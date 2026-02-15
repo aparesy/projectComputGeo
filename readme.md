@@ -8,13 +8,12 @@ Pour modifier le nombre de points par dataset, la constante correspondante se tr
 
 Les différentes commandes d'exécution sont les suivantes :
 
-Pour exécuter plusieurs fois chaque algorithme, obtenir une comparaison des différents temps d'exécution et une visualisation des deux algorithmes sur chaque dataset : `make run`
+Pour exécuter chaque algorithme, obtenir une comparaison des résultats dans `results.txt` et une visualisation des deux algorithmes sur chaque dataset : `make run`
 
-Pour générer les 4 datasets aléatoires et obtenir une visualisation de chacun d'entre eux : `make datasets`
+Pour faire `NB_ITER` exécutions de chaque algorithme sur chacun des quatre datasets et obtenir les temps d'exécution moyens : `make perf`
 
-Pour faire une seule exécution de chaque algorithme sur chacun des quatre datasets et obtenir les temps d'exécution : `make simple`
+Pour accéder à la visualisation en direct de l'exécution de l'algorithme de balayage : `make visu`
 
 Pour nettoyer les fichiers : `make clean`
 
-
-
+Les seules dépendances sont matplotlib et SFML pour les visualisations.

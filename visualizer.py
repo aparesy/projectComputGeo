@@ -21,8 +21,8 @@ def draw_output(ax, f='resultsC.txt'):
 # Create 2x2 subplot grid
 fig, axes = plt.subplots(2, 2, figsize=(10, 10))
 
-datasets = ['datasetA.txt', 'alt.txt', 'datasetC.txt', 'datasetD.txt']
-results = ['resultsA.txt', 'alt.txt', 'resultsC.txt', 'resultsD.txt']
+datasets = ['datasetA.txt', 'datasetB.txt', 'datasetC.txt', 'datasetD.txt']
+results = ['resultsA.txt', 'resultsB.txt', 'resultsC.txt', 'resultsD.txt']
 
 for ax, data, result in zip(axes.flatten(), datasets, results):
     draw_input_from_file(data, ax)

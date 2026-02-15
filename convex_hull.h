@@ -23,11 +23,11 @@ mt19937 rng(time(0)); //Random number generator of 32 bits. It is better than ra
 
 const int PRECISION=12;
 #ifdef PERF
-    const int NBPOINTS=1e4;
+    const int NBPOINTS=3e4;
 #else   
     const int NBPOINTS=100;
 #endif
-const int NB_ITER=2;
+const int NB_ITER=4;
 const int HLENGTH = 1200;
 const int VLENGTH = 800;
 
