@@ -6,6 +6,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <tuple>
 
 using namespace std;
 
@@ -26,8 +27,25 @@ const int NBPOINTS=500;
 
 struct point{
     ld x,y;
-};
 
+    point(ld x, ld y): x{ x }, y{ y } {}
+
+    point operator+(point other) {
+        return point(x + other.x, y + other.y);
+    }
+
+    point operator-(point other) {
+        return point(x - other.x, y - other.y);
+    }
+
+    bool operator<(point other) {
+        return x < other.x;
+    }
+
+    bool operator==(point other) {
+        return x == other.x && y == other.y;
+    }
+};
 /* Part 2 : datasets*/
 
 // Functions to generate point datasets. After generation, points can be found in the "datasetX.txt" files
@@ -92,11 +110,12 @@ vector<point> genC(int n){
     // Using reject-accept algorithm in a circle
     freopen("datasetC.txt","w", stdout);
     vector<point> points;
-    while(points.size()<n){
+    while((int) points.size()<n){
         ld x=random_double();
         ld y=random_double();
         double d = hypot(x-0.5, y-0.5);
-        if (d <=1.){
+        if (d <=0.5){
+           // cout<<d<<"\n";
             points.push_back({x,y});
             cout<<fixed<<setprecision(PRECISION)<<x<<" "<<y<<"\n"; 
         }
@@ -186,11 +205,78 @@ vector<point> convex_hull_sweeping(vector<point>& points){
     return hull_up;
 }
 
+class Algorithm2 {
+private:
+    std::vector<point> data; // Sorted based on the x coordinate.
+public:
+    std::vector<point> applyAlgorithm(std::vector<point> points) {
+        if (points.empty())
+            return std::vector<point>();
+        if (points.size() <= 2)
+            return points;
+        point p_m{ getMedian(points) };
+        std::vector<point> shuffled{ shuffle(points) };
+        point p1{ points[0] }, p2{ *std::prev(points.end()) };
+        ld lowestY = findIntersectionY(p_m.x, p1, p2);
+        for (int k = 0; k < points.size(); ++k) {
+            point p = points[k];
+            if (findIntersectionY(p.x, p1, p2) < p.y) {
+                p1 = p;
+                p2 = p1 == points[0] ? points[1] : points[0];
+                lowestY = findIntersectionY(p_m.x, p1, p2);
+                for (int i = 0; i < k; ++i) {
+                    std::tuple cur = std::tuple(findIntersectionY(p_m.x, p1, p), p1, p);
+                    tie(lowestY, p1, p2) = std::min(std::tuple(lowestY, p1, p2), cur, [](std::tuple<ld, point, point> q1, std::tuple<ld, point, point> q2) { return std::get<0>(q1) < std::get<0>(q2); });
+                }
+            }
+        }
+        std::vector<point> res, lo, hi;
+        for (auto p : points) {
+            if (p.x < p1.x)
+                lo.push_back(p);
+            else if (p.x > p2.x)
+                hi.push_back(p);
+        }
+        std::reverse(hi.begin(), hi.end());
+        for (auto p : applyAlgorithm(lo))
+            res.push_back(p);
+        res.push_back(p1);
+        res.push_back(p2);
+        for (auto p : applyAlgorithm(hi))
+            res.push_back(p);
+        
+        return res;
+    }
 
+    long double findIntersectionY(ld x_m, point p1, point p2) {
+        return (p2.y - p1.y) / (p2.x - p1.x) * (x_m - p1.x) + p1.y;
+    }
+
+    point getMedian(std::vector<point> points) {
+        return points[points.size() / 2];
+    }
+
+    std::vector<point> shuffle(std::vector<point> points) {
+        std::vector<point> shuffled{ points };
+        std::shuffle(points.begin(), points.end(), rng);
+        
+        return shuffled;
+    }
+
+    std::vector<point> startAlgorithm() {
+        return applyAlgorithm(data);
+    }
+
+    Algorithm2(std::vector<point> points): data{ points } {
+        sort(data.begin(), data.end());
+    }
+};
 
 int main() {
     auto points=genC(NBPOINTS);
     freopen("output.txt", "w", stdout);
-    auto h=convex_hull_sweeping(points);
+    // auto h=convex_hull_sweeping(points);
+    Algorithm2 algo(points);
+    auto h = algo.startAlgorithm();
     for (auto pt : h) cout<<pt.x<<" "<<pt.y<<"\n";
 }

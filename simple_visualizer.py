@@ -24,6 +24,6 @@ def draw_output(f = 'output.txt'):
 plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Convex hull by sweeping")
-draw_input_from_file('datasetB.txt')
+draw_input_from_file('datasetC.txt')
 draw_output()
 plt.show()
