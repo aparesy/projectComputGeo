@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <tuple>
+#include <set>
 
 using namespace std;
 
@@ -21,7 +22,16 @@ mt19937 rng(time(0)); //Random number generator of 32 bits. It is better than ra
 // Constants
 
 const int PRECISION=12;
-const int NBPOINTS=500;
+#ifdef PERF
+    const int NBPOINTS=1e4;
+#else   
+    const int NBPOINTS=100;
+#endif
+const int NB_ITER=2;
+const int HLENGTH = 1200;
+const int VLENGTH = 800;
+
+
 
 // Structs 
 
@@ -44,5 +54,9 @@ struct point{
 
     bool operator==(point other) {
         return x == other.x && y == other.y;
+    }
+
+    point operator/(ld z){
+        return {x/z, y/z};
     }
 };

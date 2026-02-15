@@ -1,35 +1,8 @@
-#include <cstdlib>
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <random>
-#include <cassert>
-#include <vector>
-#include <algorithm>
+#include "convex_hull.h"
 
 #include <SFML/Graphics.hpp>
 
-using namespace std;
 
-using ld = long double; // For more precision
-
-mt19937 rng(time(0)); //Random number generator of 32 bits. It is better than rand() which stops at 32767
-
-// Simple macros to help
-#define forn(i, n) for (int i = 0; i < n; i++) 
-#define all(v) v.begin(), v.end()
-
-// Constants
-
-const int PRECISION=12;
-const int NBPOINTS=50;
-const int HLENGTH=1600;
-const int VLENGTH=1000;
-// Structures for later use
-
-struct point{
-    ld x,y;
-};
 
 /* Part 2 : datasets*/
 
@@ -92,12 +65,32 @@ vector<point> genB(int n){
 }
 
 vector<point> genC(int n){
+    // Using reject-accept algorithm in a circle
+    freopen("datasetC.txt","w", stdout);
     vector<point> points;
+    while((int) points.size()<n){
+        ld x=random_double();
+        ld y=random_double();
+        double d = hypot(x-0.5, y-0.5);
+        if (d <=0.5){
+           // cout<<d<<"\n";
+            points.push_back({x,y});
+            cout<<fixed<<setprecision(PRECISION)<<x<<" "<<y<<"\n"; 
+        }
+    }
     return points;
 }
 
 vector<point> genD(int n){
+    freopen("datasetD.txt","w", stdout);
     vector<point> points;
+    forn(i,n){
+        ld theta=2.*M_PI*random_double();
+        ld x = 0.5*cos(theta)+0.5;
+        ld y = 0.5*sin(theta)+0.5;
+        cout<<fixed<<setprecision(PRECISION)<<x<<" "<<y<<"\n"; 
+        points.push_back({x,y});
+    }
     return points;
 }
 
@@ -105,15 +98,61 @@ vector<point> genD(int n){
 
 ld cross(point a, point b){return a.x*b.y-a.y*b.x;}
 
-bool orient(point a, point b, point c){
-    // Returns 1 if clockwise and 0 if counter-clockwise.
-    // Stems from a x b = ||a|| ||b|| sin(theta) where x is cross product
-    point a_to_b={b.x-a.x, b.y-a.y};
-    point a_to_c={c.x-a.x, c.y-a.y};
-    return (cross(a_to_b, a_to_c)<=0); //Negative means theta is negative means angle is clockwise 
+void draw_points(sf::RenderWindow& window,
+                 const vector<point>& all_points,
+                 const vector<point>& hull,
+                 const vector<point>& highlighted = {}) 
+{
+    sf::Event event;
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            window.close();
+    }
+    window.clear(sf::Color::White);
+
+    // Draw all points in black
+    for (auto& p : all_points) {
+        sf::CircleShape dot(4);
+        dot.setFillColor(sf::Color::Black);
+        dot.setPosition(p.x * HLENGTH, p.y * VLENGTH);
+        window.draw(dot);
+    }
+
+    // Draw hull points in green
+    for (auto& p : hull) {
+        sf::CircleShape dot(6);
+        dot.setFillColor(sf::Color::Green);
+        dot.setPosition(p.x * HLENGTH, p.y * VLENGTH);
+        window.draw(dot);
+    }
+
+    // Draw currently processed points in red
+    for (auto& p : highlighted) {
+        sf::CircleShape dot(8);
+        dot.setFillColor(sf::Color::Red);
+        dot.setPosition(p.x * HLENGTH, p.y * VLENGTH);
+        window.draw(dot);
+    }
+
+    window.display();
+    sf::sleep(sf::milliseconds(40)); // Slow animation
 }
 
-vector<point> convex_hull_sweeping(vector<point>& points){
+
+bool orient(point a, point b, point c,
+            sf::RenderWindow& window,
+            const vector<point>& all_points,
+            const vector<point>& hull)
+{
+    draw_points(window, all_points, hull, {a, b, c});
+
+    point a_to_b = {b.x - a.x, b.y - a.y};
+    point a_to_c = {c.x - a.x, c.y - a.y};
+    return (cross(a_to_b, a_to_c) <= 0);
+}
+
+vector<point> convex_hull_sweeping(vector<point>& points,
+                                   sf::RenderWindow& window){
     sort(all(points), [](const point a, const point b){
         if (a.x==b.x) return a.y<b.y;
         return a.x<b.x;
@@ -125,26 +164,31 @@ vector<point> convex_hull_sweeping(vector<point>& points){
     forn(i,n){
         if(hull_up.size()<=1){ // If there are 0 or 1 points in the hull
             hull_up.push_back(points[i]);
+            draw_points(window, points, hull_up);
         }
         else{
             // Compare orientation with the two previous points
             point a=hull_up[hull_up.size()-2];
             point b=hull_up[hull_up.size()-1];
             point c=points[i];
-            if (orient(a,b,c)){
+            if (orient(a,b,c,window,points,hull_up)){
                 // If clockwise, meaning c is to the right side of b
                 hull_up.push_back(c);
+                draw_points(window, points, hull_up);
             }
             else{
-                while(!orient(a,b,c) && (int)(hull_up.size())>=3){
+                while(!orient(a,b,c,window,points,hull_up) && (int)(hull_up.size())>=3){
                     hull_up.pop_back(); // Remove the last point of the hull
                     b=hull_up[hull_up.size()-1];
                     a=hull_up[hull_up.size()-2];
+                    draw_points(window, points, hull_up);
                 }
-                if (!orient(a,b,c)){
+                if (!orient(a,b,c,window,points,hull_up)){
                     hull_up.pop_back();
+                    draw_points(window, points, hull_up);
                 }
                 hull_up.push_back(c);
+                draw_points(window, points, hull_up);
             }
         }
     }
@@ -152,48 +196,57 @@ vector<point> convex_hull_sweeping(vector<point>& points){
     for(int i=n-1;i>=0;i--){ 
         if(hull_down.size()<=1){
             hull_down.push_back(points[i]);
+            draw_points(window, points, hull_down);
         }
         else{
             point a=hull_down[hull_down.size()-2];
             point b=hull_down[hull_down.size()-1];
             point c=points[i];
-            if (orient(a,b,c)){
+            if (orient(a,b,c,window,points,hull_down)){
                 hull_down.push_back(c);
+                draw_points(window, points, hull_down);
             }
             else{
-                while(!orient(a,b,c) && (int)(hull_down.size())>=3){
+                while(!orient(a,b,c,window,points,hull_down) && (int)(hull_down.size())>=3){
                     hull_down.pop_back(); 
                     b=hull_down[hull_down.size()-1];
                     a=hull_down[hull_down.size()-2];
+                    draw_points(window, points, hull_down);
                 }
-                if (!orient(a,b,c)){
+                if (!orient(a,b,c,window,points,hull_down)){
                     hull_down.pop_back();
+                    draw_points(window, points, hull_down);
                 }
                 hull_down.push_back(c);
+                draw_points(window, points, hull_down);
             }
         }
     }
-    for (int j=1;j<(int)(hull_down.size())-1;j++) hull_up.push_back(hull_down[j]);
-    return hull_up;
+    vector<point> final_hull = hull_up;
+
+    for (int j = 1; j < (int)hull_down.size() - 1; j++)
+        final_hull.push_back(hull_down[j]);
+
+    draw_points(window, points, final_hull);
+    return final_hull;
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(HLENGTH, VLENGTH), "Live visualizer");
-    sf::RectangleShape background(sf::Vector2f(HLENGTH, VLENGTH));
-    background.setFillColor(sf::Color::White);
-    while(window.isOpen()){
+
+    auto points = genB(NBPOINTS);
+
+    sf::RenderWindow window(sf::VideoMode(HLENGTH, VLENGTH), "Convex Hull Visualizer");
+
+    auto hull = convex_hull_sweeping(points, window);
+
+    // Keep window open after animation
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        window.clear();
-        window.draw(background);
-        window.display();
     }
-    auto points=genB(NBPOINTS);
-    freopen("output.txt", "w", stdout);
-    auto h=convex_hull_sweeping(points);
-    for (auto pt : h) cout<<pt.x<<" "<<pt.y<<"\n";
+
+    return 0;
 }
