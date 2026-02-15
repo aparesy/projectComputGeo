@@ -226,7 +226,9 @@ public:
                 lowestY = findIntersectionY(p_m.x, p1, p2);
                 for (int i = 0; i < k; ++i) {
                     std::tuple cur = std::tuple(findIntersectionY(p_m.x, p1, p), p1, p);
-                    tie(lowestY, p1, p2) = std::min(std::tuple(lowestY, p1, p2), cur, [](std::tuple<ld, point, point> q1, std::tuple<ld, point, point> q2) { return std::get<0>(q1) < std::get<0>(q2); });
+                    tie(lowestY, p1, p2) = std::min(std::tuple(lowestY, p1, p2), cur, 
+                        [](std::tuple<ld, point, point> q1, std::tuple<ld, point, point> q2) { 
+                            return std::get<0>(q1) < std::get<0>(q2); });
                 }
             }
         }
