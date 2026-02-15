@@ -20,6 +20,7 @@ mt19937 rng(time(0)); //Random number generator of 32 bits. It is better than ra
 // Constants
 
 const int PRECISION=12;
+const int NBPOINTS=50;
 
 // Structures for later use
 
@@ -63,7 +64,7 @@ vector<point> genA(int n){
     corners.push_back({0.,0.});
     corners.push_back({1.,0.});
     corners.push_back({0.,1.});
-    corners.push_back({0.,0.});
+    corners.push_back({1.,1.});
     for (auto corner : corners){
         points.push_back(rotate(corner));
     }
@@ -174,8 +175,7 @@ vector<point> convex_hull_sweeping(vector<point>& points){
 }
 
 int main() {
-    genA(100);
-    auto points=genB(100);
+    auto points=genB(NBPOINTS);
     freopen("output.txt", "w", stdout);
     auto h=convex_hull_sweeping(points);
     for (auto pt : h) cout<<pt.x<<" "<<pt.y<<"\n";
