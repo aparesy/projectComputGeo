@@ -104,10 +104,6 @@ vector<point> genC(int n){
     return points;
 }
 
-vector<point> genC(int n){
-    vector<point> points;
-    return points;
-}
 
 vector<point> genD(int n){
     vector<point> points;
@@ -193,7 +189,7 @@ vector<point> convex_hull_sweeping(vector<point>& points){
 
 
 int main() {
-    auto points=genB(NBPOINTS);
+    auto points=genC(NBPOINTS);
     freopen("output.txt", "w", stdout);
     auto h=convex_hull_sweeping(points);
     for (auto pt : h) cout<<pt.x<<" "<<pt.y<<"\n";
